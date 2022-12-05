@@ -1,0 +1,46 @@
+version: '3.9'
+
+services:
+    php-fpm:
+        build:
+            context: .
+            dockerfile: ./docker/development/php-fpm/build/Dockerfile
+        volumes:
+            - ./application:/var/www/application
+            - var:/var/www/application/var
+        depends_on:
+            - mysql
+
+    nginx:
+        build:
+            context: .
+            dockerfile: ./docker/development/nginx/build/Dockerfile
+        ports:
+            - '80:80'
+        volumes:
+            - ./application/public:/var/www/application/public
+            - ./docker/development/nginx/etc/conf.d:/etc/nginx/conf.d
+        depends_on:
+            - php-fpm
+
+    node:
+        build:
+            context: .
+            dockerfile: ./docker/development/node/build/Dockerfile
+        volumes:
+            - ./application:/var/www/application
+        depends_on:
+            - php-fpm
+
+    mysql:
+        image: mysql:8.0
+        environment:
+            MYSQL_DB: ${MYSQL_DB}
+            MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+            MYSQL_USER: ${MYSQL_USER}
+        volumes:
+            - database:/var/lib/mysql
+
+volumes:
+    database: ~
+    var: ~
