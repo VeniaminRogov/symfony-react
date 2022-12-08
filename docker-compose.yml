@@ -5,6 +5,9 @@ services:
         build:
             context: .
             dockerfile: ./docker/development/php-fpm/build/Dockerfile
+        environment:
+            WEB_SERVER_HOST: 'nginx'
+            DATABASE_URL: 'mysql://${MYSQL_USER}:${MYSQL_ROOT_PASSWORD}@mysql:3306/${MYSQL_DB}?serverVersion=8.0'
         volumes:
             - ./application:/var/www/application
             - var:/var/www/application/var
@@ -33,11 +36,9 @@ services:
             - php-fpm
 
     mysql:
-        image: mysql:8.0
+        image: mysql
         environment:
-            MYSQL_DB: ${MYSQL_DB}
             MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
-            MYSQL_USER: ${MYSQL_USER}
         volumes:
             - database:/var/lib/mysql
 
